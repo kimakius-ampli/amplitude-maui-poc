@@ -1,10 +1,31 @@
 # Amplitude .NET MAUI PoC
 
+> [!CAUTION]
+> **UNSUPPORTED. UNMAINTAINED. USE ENTIRELY AT YOUR OWN RISK.**
+>
+> This repository is **NOT an Amplitude product** and is **in no way
+> supported or maintained by Amplitude**. It is provided **"AS IS",
+> without warranty of any kind**, express or implied.
+>
+> **Amplitude accepts no responsibility or liability whatsoever for any
+> use of this code**, including any use of it, in whole or in part, in
+> development, testing, or production systems, and for any loss, damage,
+> data exposure, outage, or other consequence arising from such use.
+>
+> - It will **not** receive updates, bug fixes, or security patches.
+> - Issues, questions, and pull requests will **not** be answered or reviewed.
+> - Amplitude Support does **not** cover this code. Only Amplitude's
+>   official native Android and iOS SDKs are supported by Amplitude.
+> - If you use any part of it, **you alone are responsible** for reviewing,
+>   testing, securing, maintaining, and supporting it.
+>
+> If you do not accept these terms, do not use this code.
+
 A reference proof-of-concept showing Amplitude's native **Android (Kotlin)**
 and **iOS (Swift)** SDKs — including **Session Replay** — running inside a
 .NET MAUI app via native library interop.
 
-> ## ⚠️ READ THIS FIRST
+> ## ⚠️ More detail
 >
 > - **This is a reference PoC, not a product.** It was put together by
 >   Amplitude Solutions Engineering, with significant help from an AI
