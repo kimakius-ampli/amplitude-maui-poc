@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="AmplitudeMauiPoc.Views.HomePage"
+             Title="Home"
+             BackgroundColor="White">
+    <Grid RowDefinitions="Auto, Auto, Auto, *, Auto" RowSpacing="16" Padding="20">
+
+        <!-- Header -->
+        <Border Grid.Row="0" BackgroundColor="#1E61F0"
+                StrokeShape="RoundRectangle 16" Stroke="Transparent" Padding="24">
+            <VerticalStackLayout Spacing="6">
+                <Label Text="Amplitude MAUI PoC" FontSize="28" FontAttributes="Bold" TextColor="White" />
+                <Label Text="Native SDKs + Session Replay from shared C#" FontSize="15" TextColor="#D6E2FD" />
+            </VerticalStackLayout>
+        </Border>
+
+        <!-- Search -->
+        <Border Grid.Row="1" BackgroundColor="#F4F4F8"
+                StrokeShape="RoundRectangle 12" Stroke="Transparent" Padding="16">
+            <VerticalStackLayout Spacing="12">
+                <Label Text="Find an item by code" FontSize="13" TextColor="#555770" />
+                <Entry x:Name="SearchEntry"
+                       Placeholder="e.g. DEMO-1001"
+                       FontSize="18" MaxLength="20" CharacterSpacing="1" />
+                <Button x:Name="SearchBtn"
+                        Text="Search"
+                        BackgroundColor="#1E61F0" TextColor="White"
+                        FontAttributes="Bold" CornerRadius="10" HeightRequest="50"
+                        Clicked="OnSearchClicked" />
+            </VerticalStackLayout>
+        </Border>
+
+        <!-- Items label -->
+        <Label Grid.Row="2" Text="Sample items" FontSize="18" FontAttributes="Bold"
+               TextColor="#1A1A2E" />
+
+        <!-- Items list — handles its own scrolling -->
+        <CollectionView Grid.Row="3" x:Name="ItemsList"
+                        SelectionMode="Single"
+                        SelectionChanged="OnItemSelected">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Margin="0,4" Padding="14"
+                            StrokeShape="RoundRectangle 10"
+                            BackgroundColor="#FAFAFE" Stroke="#E8E8EE">
+                        <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto">
+                            <Label Text="{Binding Name}"
+                                   FontSize="15" FontAttributes="Bold" TextColor="#1A1A2E" />
+                            <Label Text="{Binding Category}" Grid.Column="1"
+                                   FontSize="11" TextColor="#1E61F0" VerticalOptions="Center" />
+                            <Label Text="{Binding Status}" Grid.Row="1"
+                                   FontSize="13" TextColor="#555770" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Session Replay indicator (visible during demo) -->
+        <Border Grid.Row="4" x:Name="SRIndicator" BackgroundColor="#E8F5E9"
+                StrokeShape="RoundRectangle 10" Stroke="Transparent" Padding="10" IsVisible="False">
+            <HorizontalStackLayout Spacing="8">
+                <Label Text="●" TextColor="#4CAF50" FontSize="12" VerticalOptions="Center" />
+                <Label Text="Session Replay capturing" FontSize="11" TextColor="#2E7D32" />
+            </HorizontalStackLayout>
+        </Border>
+
+    </Grid>
+</ContentPage>

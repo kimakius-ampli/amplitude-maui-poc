@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="AmplitudeMauiPoc.Views.ItemDetailPage"
+             Title="Item Details"
+             BackgroundColor="White">
+    <Grid RowDefinitions="Auto, Auto, Auto, *, Auto, Auto" RowSpacing="16" Padding="20">
+
+        <!-- Status banner -->
+        <Border Grid.Row="0" x:Name="StatusBanner"
+                StrokeShape="RoundRectangle 16" Stroke="Transparent" Padding="24">
+            <VerticalStackLayout Spacing="6">
+                <Label x:Name="StatusLbl" FontSize="22" FontAttributes="Bold" TextColor="White" />
+                <Label x:Name="NameLbl" FontSize="13" TextColor="White" Opacity="0.85" />
+                <Label x:Name="CategoryLbl" FontSize="13" TextColor="White" Opacity="0.85" />
+            </VerticalStackLayout>
+        </Border>
+
+        <!-- Last updated -->
+        <Border Grid.Row="1" BackgroundColor="#F4F4F8"
+                StrokeShape="RoundRectangle 10" Stroke="Transparent" Padding="14">
+            <Grid ColumnDefinitions="*, Auto">
+                <VerticalStackLayout>
+                    <Label Text="Last updated" FontSize="11" TextColor="#888" />
+                    <Label x:Name="UpdatedDate" FontSize="17" FontAttributes="Bold" TextColor="#1A1A2E" />
+                </VerticalStackLayout>
+                <Label x:Name="UpdatedDay" Grid.Column="1" FontSize="13"
+                       TextColor="#555770" VerticalOptions="Center" />
+            </Grid>
+        </Border>
+
+        <!-- Timeline label -->
+        <Label Grid.Row="2" Text="Activity" FontSize="17" FontAttributes="Bold"
+               TextColor="#1A1A2E" />
+
+        <!-- Timeline — handles its own scrolling -->
+        <CollectionView Grid.Row="3" x:Name="Timeline">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Grid ColumnDefinitions="36, *" Padding="0,6">
+                        <VerticalStackLayout HorizontalOptions="Center">
+                            <BoxView WidthRequest="10" HeightRequest="10" CornerRadius="5"
+                                     Color="#1E61F0" HorizontalOptions="Center" />
+                            <BoxView WidthRequest="2" HeightRequest="36"
+                                     Color="#E0E0E0" HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="3">
+                            <Label Text="{Binding Description}" FontSize="14"
+                                   FontAttributes="Bold" TextColor="#1A1A2E" />
+                            <Label Text="{Binding Source}" FontSize="12" TextColor="#555770" />
+                            <Label Text="{Binding Timestamp, StringFormat='{0:ddd dd MMM, HH:mm}'}"
+                                   FontSize="11" TextColor="#999" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- CTAs -->
+        <Button Grid.Row="4" Text="Add to my list"
+                BackgroundColor="#1E61F0" TextColor="White"
+                FontAttributes="Bold" CornerRadius="10" HeightRequest="50"
+                Clicked="OnAddClicked" />
+
+        <Button Grid.Row="5" Text="More options"
+                BackgroundColor="White" TextColor="#1E61F0"
+                FontAttributes="Bold" CornerRadius="10" HeightRequest="50"
+                BorderColor="#1E61F0" BorderWidth="2"
+                Clicked="OnOptionsClicked" />
+
+    </Grid>
+</ContentPage>

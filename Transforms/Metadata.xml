@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <!--
+    Suppress binding generation for internal Amplitude SDK classes
+    that cause C# compilation errors. We only need to call the
+    top-level Amplitude + SessionReplayPlugin APIs.
+  -->
+  <attr path="/api/package[@name='com.amplitude.android.internal']" name="managedName">Com.Amplitude.Android.Internal</attr>
+
+  <!-- Remove problematic internal types that don't need C# bindings -->
+  <remove-node path="/api/package[@name='com.amplitude.android.internal']/class[@name='ViewHierarchyScanner']" />
+
+  <!-- Fix Kotlin companion object naming -->
+  <attr path="//class[@name='Configuration']/field[@name='Companion']" name="visibility">private</attr>
+</metadata>

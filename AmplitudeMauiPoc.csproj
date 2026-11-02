@@ -1,0 +1,111 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net10.0-android;net10.0-ios</TargetFrameworks>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>AmplitudeMauiPoc</RootNamespace>
+    <UseMaui>true</UseMaui>
+    <SingleProject>true</SingleProject>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <ApplicationTitle>Amplitude MAUI PoC</ApplicationTitle>
+    <ApplicationId>com.amplitude.mauipoc</ApplicationId>
+    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <ApplicationVersion>1</ApplicationVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">16.0</SupportedOSPlatformVersion>
+    <AndroidMavenJavaDependencyVerification>false</AndroidMavenJavaDependencyVerification>
+  </PropertyGroup>
+
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+    <!-- ALL Amplitude AARs included but NOT bound to C# -->
+    <!-- They ship inside the APK and we call them via JNI at runtime -->
+    <AndroidMavenLibrary Include="com.amplitude:analytics-android" Version="1.16.8" Bind="false" />
+    <AndroidMavenLibrary Include="com.amplitude:plugin-session-replay-android" Version="0.18.0" Bind="false" />
+    <AndroidMavenLibrary Include="com.amplitude:session-replay-android" Version="0.18.0" Bind="false" />
+    <AndroidMavenLibrary Include="com.amplitude:analytics-connector" Version="1.0.0" Bind="false" />
+    <AndroidMavenLibrary Include="com.squareup.curtains:curtains" Version="1.2.5" Bind="false" />
+    <AndroidMavenLibrary Include="org.jetbrains.kotlin:kotlin-reflect" Version="2.0.21" Bind="false" />
+
+    <PackageReference Include="Xamarin.Kotlin.StdLib" Version="2.2.0.1" />
+    <PackageReference Include="Xamarin.Kotlin.StdLib.Jdk8" Version="2.2.0.1" />
+    <PackageReference Include="Xamarin.KotlinX.Coroutines.Android" Version="1.10.2.1" />
+    <PackageReference Include="Xamarin.KotlinX.Coroutines.Core" Version="1.10.2.1" />
+    <PackageReference Include="Xamarin.AndroidX.AppCompat" Version="1.7.1.1" />
+    <PackageReference Include="Xamarin.AndroidX.Core.Core.Ktx" Version="1.16.0.3" />
+    <PackageReference Include="GoogleGson" Version="2.13.1.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+    <!--
+      Native Library Interop: link against the Swift wrapper xcframework
+      that bridges AmplitudeSwift + AmplitudeSessionReplay into ObjC.
+      Build it once with: NativeLibraries/AmplitudeIOSBindings/build-xcframework.sh
+    -->
+    <NativeReference Include="NativeLibraries/AmplitudeIOSBindings/build/AmplitudeIOSBindings.xcframework"
+                     Kind="Framework"
+                     SmartLink="True"
+                     ForceLoad="False" />
+    <!--
+      Transitive binary frameworks shipped by Amplitude. <NativeReference>
+      doesn't auto-embed these into .app/Frameworks, so we copy them in via
+      a post-build target below. They still need to be linked, hence
+      ForceLoad / link flags.
+    -->
+    <NativeReference Include="NativeLibraries/AmplitudeIOSBindings/build/AmplitudeCore.xcframework"
+                     Kind="Framework"
+                     SmartLink="True" />
+    <NativeReference Include="NativeLibraries/AmplitudeIOSBindings/build/AmplitudeSessionReplay.xcframework"
+                     Kind="Framework"
+                     SmartLink="True" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Bundle .env (KEY=VALUE secrets, gitignored) into the app so
+         FileSystem.OpenAppPackageFileAsync can read it at runtime.
+         Falls back to .env.example if .env is missing locally. -->
+    <MauiAsset Include=".env" LogicalName="env" Condition="Exists('.env')" />
+    <MauiAsset Include=".env.example" LogicalName="env"
+               Condition="!Exists('.env')" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
+    <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+  </ItemGroup>
+
+  <!--
+    Copy the AmplitudeCore + AmplitudeSessionReplay framework slices into
+    the .app/Frameworks/ directory. NativeReference handles linking but
+    not bundle embedding for transitive xcframeworks.
+  -->
+  <Target Name="EmbedAmplitudeTransitiveFrameworks"
+          BeforeTargets="_CodesignAppBundle"
+          AfterTargets="Build"
+          Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+    <PropertyGroup>
+      <_AmpXcfRoot>$(MSBuildThisFileDirectory)NativeLibraries/AmplitudeIOSBindings/build</_AmpXcfRoot>
+      <_AmpXcfSlice Condition="'$(RuntimeIdentifier)' == 'iossimulator-arm64' OR '$(RuntimeIdentifier)' == 'iossimulator-x64'">ios-arm64_x86_64-simulator</_AmpXcfSlice>
+      <_AmpXcfSlice Condition="'$(_AmpXcfSlice)' == ''">ios-arm64</_AmpXcfSlice>
+      <_AmpAppBundle Condition="'$(AppBundleDir)' != ''">$(AppBundleDir)</_AmpAppBundle>
+      <_AmpAppBundle Condition="'$(_AmpAppBundle)' == ''">$(OutputPath)$(AssemblyName).app</_AmpAppBundle>
+      <_AmpAppFrameworks>$(_AmpAppBundle)/Frameworks</_AmpAppFrameworks>
+    </PropertyGroup>
+    <Message Importance="high" Text="Embedding AmplitudeCore + AmplitudeSessionReplay ($(_AmpXcfSlice)) into $(_AmpAppFrameworks)" />
+    <!-- Clean stray header files / module maps left over from previous (broken) glob copies. -->
+    <Exec Command="find &quot;$(_AmpAppFrameworks)&quot; -maxdepth 1 -type f -delete 2&gt;/dev/null; rm -rf &quot;$(_AmpAppFrameworks)/Modules&quot; &quot;$(_AmpAppFrameworks)/Headers&quot; &quot;$(_AmpAppFrameworks)/CodeResources&quot; 2&gt;/dev/null; true" />
+    <!-- Wipe and copy each framework as a self-contained directory tree. cp -R preserves the framework's signature & internal symlinks. -->
+    <Exec Command="rm -rf &quot;$(_AmpAppFrameworks)/AmplitudeCore.framework&quot; &amp;&amp; cp -R &quot;$(_AmpXcfRoot)/AmplitudeCore.xcframework/$(_AmpXcfSlice)/AmplitudeCore.framework&quot; &quot;$(_AmpAppFrameworks)/&quot;" />
+    <Exec Command="rm -rf &quot;$(_AmpAppFrameworks)/AmplitudeSessionReplay.framework&quot; &amp;&amp; cp -R &quot;$(_AmpXcfRoot)/AmplitudeSessionReplay.xcframework/$(_AmpXcfSlice)/AmplitudeSessionReplay.framework&quot; &quot;$(_AmpAppFrameworks)/&quot;" />
+    <!-- Strip the original signature; iOS toolchain re-signs in the codesign target. -->
+    <Exec Command="codesign --remove-signature &quot;$(_AmpAppFrameworks)/AmplitudeCore.framework&quot; 2&gt;/dev/null; codesign --remove-signature &quot;$(_AmpAppFrameworks)/AmplitudeSessionReplay.framework&quot; 2&gt;/dev/null; true" />
+  </Target>
+
+  <Target Name="EnsureAmplitudeXCFramework"
+          BeforeTargets="_CheckForUnsupportedTargetFramework"
+          Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' AND !Exists('NativeLibraries/AmplitudeIOSBindings/build/AmplitudeIOSBindings.xcframework')">
+    <Error Text="AmplitudeIOSBindings.xcframework not found. Run NativeLibraries/AmplitudeIOSBindings/build-xcframework.sh on macOS with Xcode 15+ before building the iOS target." />
+  </Target>
+
+</Project>
