@@ -13,7 +13,7 @@ Your team is evaluating whether Amplitude can integrate cleanly into your existi
 
 This summary describes what the proof-of-concept demonstrates, where it stands today, and where we think your team would want to focus first when adapting the pattern for a production rollout. The detailed feature-by-feature gap analysis is in the companion document [`sdk-coverage.md`](sdk-coverage.md).
 
-A note on provenance, in case you read the code: this proof-of-concept was generated with significant AI assistance, with limited human review, and is **not** an officially maintained Amplitude integration. We are sharing it as a working demonstration of the integration pattern — something for your engineers to read, run, and learn from — not as a library we expect you to drop into production. Your team should own the engineering for the production version, with us available to advise.
+A note on provenance, in case you read the code: this proof-of-concept was generated with significant AI assistance, with limited human review, and is **not** an officially maintained Amplitude integration. We are sharing it as a working demonstration of the integration pattern — something for your engineers to read, run, and learn from — not as a library we expect you to drop into production. Your team owns the engineering for any production version. As stated at the top of the [README](../README.md), this code is unsupported and unmaintained, and Amplitude accepts no responsibility for any use of it.
 
 ## What the proof-of-concept demonstrates
 
@@ -58,13 +58,11 @@ Based on what we see across other Amplitude customers, the priority sequence we'
 
 Final scope, sequencing, and effort estimates are decisions for your engineering team — we don't have a complete view of your codebase, your team's velocity, or your privacy/compliance posture. The list above is a starting point for that conversation, not a delivery plan.
 
-## Our read on the technical risk
+## What the proof-of-concept does and does not tell you
 
-**Low.** The proof-of-concept demonstrates that the end-to-end mechanics work. The remaining work is bounded engineering — extending the shared C# wrapper to expose more of the SDK surface, and configuring Session Replay appropriately for your privacy obligations.
+In a test environment (one Android emulator, one iOS simulator), the proof-of-concept showed that the end-to-end mechanics can work: events and Session Replay sessions reached Amplitude from shared C# code on both platforms. It does **not** establish that the approach is suitable, secure, or reliable for your app, your devices, or your traffic — that assessment is for your engineering team to make.
 
-We suggest treating the proof-of-concept as a reference implementation of the integration pattern, not as a starting codebase you'd inherit directly. The patterns are correct and the build pipeline works; the production version is yours to design and own.
-
-Happy to walk through the code, the gap analysis, or the priority sequence with your team whenever it's useful.
+Treat the proof-of-concept as an illustration of the integration pattern, not as a codebase to inherit. Any production version is yours to design, review, test, and own. This code is unsupported and unmaintained; see the disclaimer at the top of the [README](../README.md).
 
 ---
 
